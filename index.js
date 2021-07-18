@@ -1,6 +1,11 @@
 var express = require('express');
 var app = express();
 var es6Renderer = require('express-es6-template-engine')
+var bodyParser = require("body-parser");
+const urlencodedParser = bodyParser.urlencoded({
+    extended: false
+});
+app.use(urlencodedParser);
 
 // view engine setup
 app.engine('html', es6Renderer);
@@ -25,6 +30,22 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
     res.render('register');
 })
+
+app.post("/registeruser", urlencodedParser, (req, res) => {
+    if (!req.body.Name) {
+        res.status(200).json({
+            success: false,
+            message: "Please enter proper name",
+        });
+        return
+    }
+    res.status(200).json({
+        success: true,
+        message: "Registration successful",
+        data: res.body,
+    });
+});
+
 
 
 app.listen(8080);
