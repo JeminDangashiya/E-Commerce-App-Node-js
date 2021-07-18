@@ -72,7 +72,7 @@ app.post("/registeruser", urlencodedParser, (req, res) => {
         service: 'gmail',
         auth: {
             user: senderEmail,
-            pass: ''
+            pass: 'Dilip@123'
         }
     });
 
@@ -143,10 +143,37 @@ app.post("/forgetpassword", urlencodedParser, (req, res) => {
         });
         return
     }
-    res.status(200).json({
-        success: true,
-        message: "Registration successful",
-        data: res.body,
+    
+    var senderEmail = "dilip.kakadiya.test@gmail.com"
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: senderEmail,
+            pass: 'Dilip@123'
+        }
+    });
+
+    var mailOptions = {
+        from: senderEmail,
+        to: decodeURIComponent(req.body.mail),
+        subject: 'Sending Email using Node.js',
+        html: '<h1>Welcome</h1><p>That was easy!</p>'
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            res.status(200).json({
+                success: false,
+                message:JSON.stringify(error),
+                data: res.body,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: "Email successfuly send",
+                data: res.body,
+            });
+        }
     });
 });
 
