@@ -30,6 +30,9 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
     res.render('register');
 })
+app.get('/forgetpassword', function (req, res) {
+    res.render('forgetpassword');
+})
 
 app.post("/registeruser", urlencodedParser, (req, res) => {
     if (!req.body.Name) {
@@ -39,12 +42,100 @@ app.post("/registeruser", urlencodedParser, (req, res) => {
         });
         return
     }
+    else if (!req.body.Email) {
+        res.status(200).json({
+            success: false,
+            message: "Please enter proper Email Address",
+        });
+        return
+    }
+    else if (!req.body.Password) {
+        res.status(200).json({
+            success: false,
+            message: "Please enter Password",
+        });
+        return
+    }
+    else if(req.body.Password != req.body.ConfirmPassword){
+        res.status(200).json({
+            success: false,
+            message: "Please enter confirm Password",
+        });
+        return
+    }
+    else if(!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.Email)))
+    {
+        res.status(200).json({
+            success: false,
+            message: "Please enter Proper email",
+        });
+        return
+    }
     res.status(200).json({
         success: true,
         message: "Registration successful",
         data: res.body,
     });
 });
+
+app.post("/loginuser", urlencodedParser, (req, res) => {
+     if (!req.body.mail) {
+        res.status(200).json({
+            success: false,
+            message: "Please enter proper Email Address",
+        });
+        return
+    }
+    else if (!req.body.password) {
+        res.status(200).json({
+            success: false,
+            message: "Please enter Password",
+        });
+        return
+    }
+    
+    else if(!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail)))
+    {
+        res.status(200).json({
+            success: false,
+            message: "Please enter Proper email",
+        });
+        return
+    }
+    res.status(200).json({
+        success: true,
+        message: "Registration successful",
+        data: res.body,
+    });
+});
+
+
+app.post("/forgetpassword", urlencodedParser, (req, res) => {
+    if (!req.body.mail) {
+       res.status(200).json({
+           success: false,
+           message: "Please enter proper Email Address",
+       });
+       return
+   }
+   
+   
+   else if(!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail)))
+   {
+       res.status(200).json({
+           success: false,
+           message: "Please enter Proper email",
+       });
+       return
+   }
+   res.status(200).json({
+       success: true,
+       message: "Registration successful",
+       data: res.body,
+   });
+});
+
+
 
 
 

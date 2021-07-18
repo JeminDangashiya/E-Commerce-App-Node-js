@@ -192,6 +192,7 @@
             Password: $('#inputPassword').val(),
             ConfirmPassword:  $('#inputConfirmPassword').val(),
         }
+        
         $.ajax({
             url: '/registeruser',
             method: 'POST',
@@ -201,7 +202,7 @@
                     alert(res.message)
                 }
                 else{
-                    alert('Failed to register user')
+                    alert(res.message)
                 }
             },
             error: function(err){
