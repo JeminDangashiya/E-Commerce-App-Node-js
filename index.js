@@ -34,7 +34,12 @@ app.get('/register', function (req, res) {
 app.get('/forgetpassword', function (req, res) {
     res.render('forgetpassword');
 })
-
+app.get('/verifyOtp', function (req, res) {
+    res.render('verifyOtp');
+})
+app.get('/resetpassword', function (req, res) {
+    res.render('resetpassword');
+})
 app.post("/registeruser", urlencodedParser, (req, res) => {
     if (!req.body.Name) {
         res.status(200).json({
@@ -143,7 +148,6 @@ app.post("/forgetpassword", urlencodedParser, (req, res) => {
         });
         return
     }
-    
     var senderEmail = "dilip.kakadiya.test@gmail.com"
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -156,15 +160,15 @@ app.post("/forgetpassword", urlencodedParser, (req, res) => {
     var mailOptions = {
         from: senderEmail,
         to: decodeURIComponent(req.body.mail),
-        subject: 'Sending Email using Node.js',
-        html: '<h1>Welcome</h1><p>That was easy!</p>'
+        subject: 'OTP for reset password',
+        html: 'Your otp is 987654, please reset your password <a href="http://localhost:8080/verifyOtp">here</a>'
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             res.status(200).json({
                 success: false,
-                message:JSON.stringify(error),
+                message: JSON.stringify(error),
                 data: res.body,
             });
         } else {
@@ -176,6 +180,22 @@ app.post("/forgetpassword", urlencodedParser, (req, res) => {
         }
     });
 });
+
+app.post("/verifyOtpCode", urlencodedParser, (req, res) => {
+    if (req.body.optCode == '987654') {
+        res.status(200).json({
+            success: true,
+            message: "Otp verified",
+            data: res.body,
+        });
+    } else {
+        res.status(200).json({
+            success: false,
+            message: "Your otp is not valid",
+            data: res.body,
+        });
+    }
+})
 
 
 
