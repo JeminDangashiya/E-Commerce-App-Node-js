@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var es6Renderer = require('express-es6-template-engine')
 var bodyParser = require("body-parser");
+var nodemailer = require('nodemailer');
 const urlencodedParser = bodyParser.urlencoded({
     extended: false
 });
@@ -41,70 +42,88 @@ app.post("/registeruser", urlencodedParser, (req, res) => {
             message: "Please enter proper name",
         });
         return
-    }
-    else if (!req.body.Email) {
+    } else if (!req.body.Email) {
         res.status(200).json({
             success: false,
             message: "Please enter proper Email Address",
         });
         return
-    }
-    else if (!req.body.Password) {
+    } else if (!req.body.Password) {
         res.status(200).json({
             success: false,
             message: "Please enter Password",
         });
         return
-    }
-    else if(req.body.Password != req.body.ConfirmPassword){
+    } else if (req.body.Password != req.body.ConfirmPassword) {
         res.status(200).json({
             success: false,
             message: "Please enter confirm Password",
         });
         return
-    }
-    else if(!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.Email)))
-    {
+    } else if (!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.Email))) {
         res.status(200).json({
             success: false,
             message: "Please enter Proper email",
         });
         return
     }
-    res.status(200).json({
-        success: true,
-        message: "Registration successful",
-        data: res.body,
+    var senderEmail = "dilip.kakadiya.test@gmail.com"
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: senderEmail,
+            pass: ''
+        }
+    });
+
+    var mailOptions = {
+        from: senderEmail,
+        to: decodeURIComponent(req.body.Email),
+        subject: 'Sending Email using Node.js',
+        html: '<h1>Welcome</h1><p>That was easy!</p>'
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            res.status(200).json({
+                success: false,
+                message: "Failed to Register user",
+                data: res.body,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: "Registration successful",
+                data: res.body,
+            });
+        }
     });
 });
 
 app.post("/loginuser", urlencodedParser, (req, res) => {
-     if (!req.body.mail) {
+    if (!req.body.mail) {
         res.status(200).json({
             success: false,
             message: "Please enter proper Email Address",
         });
         return
-    }
-    else if (!req.body.password) {
+    } else if (!req.body.password) {
         res.status(200).json({
             success: false,
             message: "Please enter Password",
         });
         return
-    }
-    
-    else if(!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail)))
-    {
+    } else if (!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail))) {
         res.status(200).json({
             success: false,
             message: "Please enter Proper email",
         });
         return
     }
+
     res.status(200).json({
         success: true,
-        message: "Registration successful",
+        message: "Login successful",
         data: res.body,
     });
 });
@@ -112,27 +131,23 @@ app.post("/loginuser", urlencodedParser, (req, res) => {
 
 app.post("/forgetpassword", urlencodedParser, (req, res) => {
     if (!req.body.mail) {
-       res.status(200).json({
-           success: false,
-           message: "Please enter proper Email Address",
-       });
-       return
-   }
-   
-   
-   else if(!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail)))
-   {
-       res.status(200).json({
-           success: false,
-           message: "Please enter Proper email",
-       });
-       return
-   }
-   res.status(200).json({
-       success: true,
-       message: "Registration successful",
-       data: res.body,
-   });
+        res.status(200).json({
+            success: false,
+            message: "Please enter proper Email Address",
+        });
+        return
+    } else if (!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail))) {
+        res.status(200).json({
+            success: false,
+            message: "Please enter Proper email",
+        });
+        return
+    }
+    res.status(200).json({
+        success: true,
+        message: "Registration successful",
+        data: res.body,
+    });
 });
 
 
