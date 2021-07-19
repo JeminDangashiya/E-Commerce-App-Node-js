@@ -37,8 +37,14 @@ app.get('/forgetpassword', function (req, res) {
 app.get('/verifyOtp', function (req, res) {
     res.render('verifyOtp');
 })
+app.get('/verifyOTPatLogin', function (req, res) {
+    res.render('verifyOTPatLogin');
+})
 app.get('/resetpassword', function (req, res) {
     res.render('resetpassword');
+})
+app.get('/main-page', function (req, res) {
+    res.render('main-page');
 })
 app.post("/registeruser", urlencodedParser, (req, res) => {
     if (!req.body.Name) {
@@ -85,7 +91,7 @@ app.post("/registeruser", urlencodedParser, (req, res) => {
         from: senderEmail,
         to: decodeURIComponent(req.body.Email),
         subject: 'Sending Email using Node.js',
-        html: '<h1>Welcome</h1><p>That was easy!</p>'
+        html: 'Your otp is 987654, please reset your password <a href="http://localhost:8080/verifyOtp">here</a>'
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -103,7 +109,28 @@ app.post("/registeruser", urlencodedParser, (req, res) => {
             });
         }
     });
+    
 });
+
+
+app.post("/verifyOTPatLogin", urlencodedParser, (req, res) => {
+    if (req.body.optCode == '987654') {
+        res.status(200).json({
+            success: true,
+            message: "Otp verified",
+            data: res.body,
+        });
+    } else {
+        res.status(200).json({
+            success: false,
+            message: "Your otp is not valid",
+            data: res.body,
+        });
+    }
+})
+
+
+
 
 app.post("/loginuser", urlencodedParser, (req, res) => {
     if (!req.body.mail) {
