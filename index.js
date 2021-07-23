@@ -81,11 +81,11 @@ MongoClient.connect(connectionString, {
             } else {
                 const users = db.collection('users_registration');
                 users.insertOne({
-                    ...req.body,
-                    otp_code: '987654'
-                }).then(result => {
-                    res.send(result)
-                })
+                        ...req.body,
+                        otp_code: '987654'
+                    }).then(result => {
+                        res.send(result)
+                    })
                     .catch(error => console.error(error))
                 res.status(200).json({
                     success: true,
@@ -168,82 +168,118 @@ MongoClient.connect(connectionString, {
 
 
     });
-});
 
-
-app.post("/forgetpassword", urlencodedParser, (req, res) => {
-    if (!req.body.mail) {
-        res.status(200).json({
-            success: false,
-            message: "Please enter proper Email Address",
-        });
-        return
-    } else if (!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail))) {
-        res.status(200).json({
-            success: false,
-            message: "Please enter Proper email",
-        });
-        return
-    }
-    var senderEmail = "dilip.kakadiya.test@gmail.com"
-    var transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: senderEmail,
-            pass: 'Dilip@123'
-        }
-    });
-
-    var mailOptions = {
-        from: senderEmail,
-        to: decodeURIComponent(req.body.mail),
-        subject: 'OTP for reset password',
-        html: 'Your otp is 987654, please reset your password <a href="http://localhost:8080/verifyOtp">here</a>'
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
+    app.post("/forgetpassword", urlencodedParser, (req, res) => {
+        if (!req.body.mail) {
             res.status(200).json({
                 success: false,
-                message: JSON.stringify(error),
-                data: res.body,
+                message: "Please enter proper Email Address",
             });
-        } else {
+            return
+        } else if (!/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(decodeURIComponent(req.body.mail))) {
             res.status(200).json({
-                success: true,
-                message: "Email successfuly send",
-                data: res.body,
+                success: false,
+                message: "Please enter Proper email",
             });
+            return
         }
-    });
-});
-
-app.post("/verifyOtpCode", urlencodedParser, (req, res) => {
-    const users = db.collection('users_registration');
-    users.find({
-        Email: req.body.mail
-    }).limit(1).toArray().then(result => {
-        if (result && result[0] && req.body.optCode == result[0].otp_code) {
+        const users = db.collection('users_registration');
+        users.find({
+            Email: req.body.mail,
+        }).limit(1).toArray().then(result => {
+            if (result && result[0]) {
+                var senderEmail = "dilip.kakadiya.test@gmail.com"
+                var transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: senderEmail,
+                        pass: 'Dilip@123'
+                    }
+                });
+                var otpCode = Math.ceil(Math.random() * 1000000);
+                var mailOptions = {
+                    from: senderEmail,
+                    to: decodeURIComponent(req.body.mail),
+                    subject: 'OTP for reset password',
+                    html: 'Your otp is ' + otpCode + ', please reset your password <a href="http://localhost:8080/verifyOtp">here</a>'
+                };
+    
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        res.status(200).json({
+                            success: false,
+                            message: JSON.stringify(error),
+                            data: res.body,
+                        });
+                    } else {
+                        users.updateOne({
+                            Email: req.body.mail,
+                        }, {
+                            $set: {
+                                "otp_code": otpCode,
+                            }
+                        }).then(ress => {
+                            res.status(200).json({
+                                success: true,
+                                message: "Email successfuly send",
+                                data: res.body,
+                            });
+                        }).catch(errr => {
+                            res.status(200).json({
+                                success: false,
+                                message: "Failed to update",
+                                data: res.body,
+                            });
+                        })
+    
+                    }
+                });
+            } else {
+                res.status(200).json({
+                    success: false,
+                    message: "Email not found",
+                    data: res.body,
+                });
+            }
+        }).catch(err => {
             res.status(200).json({
-                success: true,
-                message: "Otp verified",
+                success: false,
+                message: "Email not found",
                 data: res.body,
             });
-        } else {
+        })
+    });
+    
+    app.post("/verifyOtpCode", urlencodedParser, (req, res) => {
+        const users = db.collection('users_registration');
+        users.find({
+            Email: req.body.mail
+        }).limit(1).toArray().then(result => {
+            if (result && result[0] && req.body.optCode == result[0].otp_code) {
+                res.status(200).json({
+                    success: true,
+                    message: "Otp verified",
+                    data: res.body,
+                });
+            } else {
+                res.status(200).json({
+                    success: false,
+                    message: "Your otp is not valid",
+                    data: res.body,
+                });
+            }
+        }).catch(err => {
             res.status(200).json({
                 success: false,
                 message: "Your otp is not valid",
                 data: res.body,
             });
-        }
-    }).catch(err => {
-        res.status(200).json({
-            success: false,
-            message: "Your otp is not valid",
-            data: res.body,
-        });
-    })
+        })
+    });
 });
+
+
+
 
 
 
