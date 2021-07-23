@@ -127,6 +127,11 @@
                             <h5 class="card-title text-center">Enter Your Otp Here</h5>
                             <form class="form-signin">
                                 <div class="form-label-group">
+                                    <input type="email" id="inputmail" class="form-control" placeholder="Email address"
+                                        required autofocus>
+                                    <label for="inputmail">Enter Your Mail</label>
+                                </div>
+                                <div class="form-label-group">
                                     <input type="number" id="inputNumber" class="form-control" placeholder="Email address"
                                         required autofocus>
                                     <label for="inputNumber">Enter Your Otp</label>
@@ -147,14 +152,18 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     function verifyOtpCode(){
+        debugger
         var otpInfo = {
-            optCode : $('#inputNumber').val()
+            optCode : $('#inputNumber').val(),
+            mail : $('#inputmail').val(),
+
         }
         $.ajax({
             url: '/verifyOtpCode',
             method: 'POST',
             data: otpInfo,
             success: function(res){
+                debugger
                 if(res.success){
                     alert(res.message)
                     window.location.href = '/main-page'

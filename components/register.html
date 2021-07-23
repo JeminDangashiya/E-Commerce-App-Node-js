@@ -193,6 +193,7 @@
             ConfirmPassword:  $('#inputConfirmPassword').val(),
         }
         
+        
         $.ajax({
             url: '/registeruser',
             method: 'POST',
@@ -200,6 +201,7 @@
             success: function(res){
                 if(res.success){
                     alert(res.message)
+                    
                 }
                 else{
                     alert(res.message)
